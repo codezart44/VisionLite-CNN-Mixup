@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from typing import Callable
-
+import gc
 
 
 def accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor) -> float:
@@ -10,12 +10,11 @@ def accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor) -> float:
     accuracy = torch.sum(y_pred == y_true) / y_true.shape[0]
     return accuracy.item()
 
-
 def train_one_epoch(
-        model, 
+        model: torch.nn.Module, 
         dataloader: DataLoader,
         optimizer: torch.optim.Adam, 
-        loss_fn: Callable, 
+        loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], 
         device
     ) -> tuple[float, float]:
     """ """
@@ -39,13 +38,16 @@ def train_one_epoch(
         total_loss += loss.item()
         total_accuracy += accuracy
 
+        del x, y, y_pred, loss
+    gc.collect()
+
     return total_loss / num_batches, total_accuracy / num_batches
 
 
 def evaluate(
-        model,
+        model: torch.nn.Module,
         dataloader: DataLoader,
-        loss_fn: Callable,
+        loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
         device
     ) -> tuple[float, float]:
     """ """
@@ -54,17 +56,21 @@ def evaluate(
     total_accuracy = 0
     num_batches = len(dataloader)
 
-    for i, batch in enumerate(dataloader):
-        x: torch.Tensor = batch[0]
-        y: torch.Tensor = batch[1]
-        x, y = x.to(device), y.to(device)
+    with torch.no_grad():
+        for i, batch in enumerate(dataloader):
+            x: torch.Tensor = batch[0]
+            y: torch.Tensor = batch[1]
+            x, y = x.to(device), y.to(device)
 
-        y_pred = model(x)
-        loss = loss_fn(y_pred, y)
-        accuracy = accuracy_score(y, y_pred)
+            y_pred = model(x)
+            loss = loss_fn(y_pred, y)
+            accuracy = accuracy_score(y, y_pred)
 
-        total_loss += loss
-        total_accuracy += accuracy
+            total_loss += loss.item()
+            total_accuracy += accuracy
+
+            del x, y, y_pred, loss
+        gc.collect()
 
     return total_loss / num_batches, total_accuracy / num_batches
 
