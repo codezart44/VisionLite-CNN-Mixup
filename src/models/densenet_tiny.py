@@ -36,14 +36,11 @@ import torch.nn as nn
 # -------------------------
 # Apply global pooling, flatten and then map to class logits
 
-GROWTH_RATE = 12
-COMPRESSION = 4
-
 class _DenseLayer(nn.Module):
     def __init__(
             self,
             in_channels : int,
-            growth_rate : int = GROWTH_RATE,
+            growth_rate : int = 12,
             dropout : float = 0.2,
             ):
         super().__init__()
@@ -73,7 +70,7 @@ class _DenseBlock(nn.Module):
     def __init__(
             self,
             in_channels : int,
-            growth_rate : int = GROWTH_RATE,
+            growth_rate : int = 12,
             num_layers : int = 3,
             ):
         super().__init__()
@@ -110,7 +107,7 @@ class _TransitionLayer(nn.Module):
     def __init__(
             self,
             in_channels : int,
-            compression : int = COMPRESSION,
+            compression : int = 2,
             ):
         super().__init__()
 
@@ -132,8 +129,6 @@ class _TransitionLayer(nn.Module):
 # - Dense Block 1
 # - Transition Layer 1
 # - Dense Block 2
-# - Transition Layer 2
-# - Dense Block 3
 # - Global Pooling Layer
 # - Flatten Layer
 # - Dropout
@@ -143,13 +138,13 @@ class DenseNetTiny(nn.Module):
     def __init__(
             self,
             in_channels : int = 1,  # Gray Scale
-            base_channels : int = 16,
+            base_channels : int = 8,
             num_classes : int = 10,  # FashionMNIST
-            compression : int = COMPRESSION,
-            growth_rate : int = GROWTH_RATE,
+            num_layers : int = 3,
+            growth_rate : int = 8,
+            compression : int = 4,
             ):
         super().__init__()
-        num_layers = 3
 
         in_channels_d1 = base_channels
         in_channels_t1 = in_channels_d1 + growth_rate * num_layers
@@ -160,29 +155,29 @@ class DenseNetTiny(nn.Module):
 
         self.conv_stack = nn.Sequential(
             # Initial Conv Layer
-            nn.Conv2d(in_channels, base_channels, kernel_size=3, stride=1, padding=1),  # [B, 12, 28, 28]
+            nn.Conv2d(in_channels, base_channels, kernel_size=3, stride=1, padding=1),  # [B, 4, 28, 28]
 
             # Dense Block 1
-            _DenseBlock(in_channels_d1, growth_rate, num_layers),  # [B, 12+12*3, 28, 28] = [B, 48, 28, 28]
+            _DenseBlock(in_channels_d1, growth_rate, num_layers),  # [B, 4+4*2, 28, 28] = [B, 12, 28, 28]
 
             # Transision Layer 1
-            _TransitionLayer(in_channels_t1, compression),  # [B, 48/4, 28/2, 28/2] = [B, 12, 14, 14]
+            _TransitionLayer(in_channels_t1, compression),  # [B, 12/3, 28/2, 28/2] = [B, 4, 14, 14]
 
             # Dense Block 2
-            _DenseBlock(in_channels_d2, growth_rate, num_layers),  # [B, 12+12*3, 14, 14] = [B, 48, 14, 14]
+            _DenseBlock(in_channels_d2, growth_rate, num_layers),  # [B, 4+4*2, 14, 14] = [B, 12, 14, 14]
 
-            # Transition Layer 2
-            _TransitionLayer(in_channels_t2, compression),  # [B, 48/4, 14/2, 14/2] = [B, 12, 7, 7]
-            
+            # Transision Layer 2
+            _TransitionLayer(in_channels_t2, compression),  # 
+
             # Dense Block 3
-            _DenseBlock(in_channels_d3, growth_rate, num_layers)  # [B, 12+12*3, 7, 7] = [B, 48, 7, 7]
+            _DenseBlock(in_channels_d3, growth_rate, num_layers),  # 
         )
 
         self.classifier = nn.Sequential(
-            nn.AdaptiveAvgPool2d(output_size=1),  # [B, 48, 7, 7] -> [B, 48, 1, 1]
-            nn.Flatten(),  # [B, 48, 1, 1] -> [B, 48]
+            nn.AdaptiveAvgPool2d(output_size=1),  # [B, 12, 14, 14] -> [B, 12, 1, 1]
+            nn.Flatten(),  # [B, 12, 1, 1] -> [B, 12]
             nn.Dropout(p=0.2),
-            nn.Linear(in_channels_lin, num_classes)  # [B, 48] -> [B, 10]
+            nn.Linear(in_channels_lin, num_classes)  # [B, 12] -> [B, 10]
         )
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
