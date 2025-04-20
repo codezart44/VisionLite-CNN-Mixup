@@ -1,3 +1,4 @@
 from .baseline_cnn import BaselineCNN
 from .lenet5 import LeNet5
-from .mini_resnet import MiniResNet
+from .resnet_mini import ResNetMini
+from .densenet_tiny import DenseNetTiny

@@ -39,7 +39,7 @@ import torch.nn as nn
 GROWTH_RATE = 12
 COMPRESSION = 4
 
-class DenseLayer(nn.Module):
+class _DenseLayer(nn.Module):
     def __init__(
             self,
             in_channels : int,
@@ -69,7 +69,7 @@ class DenseLayer(nn.Module):
 # The output of the last dense layer is concatenated with the last
 # input and then used as input for the next dense layer. 
 
-class DenseBlock(nn.Module):
+class _DenseBlock(nn.Module):
     def __init__(
             self,
             in_channels : int,
@@ -81,7 +81,7 @@ class DenseBlock(nn.Module):
 
         # List of #num dense layers
         self.dense_layers = nn.ModuleList(
-            DenseLayer(
+            _DenseLayer(
                 in_channels = in_channels + i*growth_rate, 
                 growth_rate = growth_rate, 
                 dropout = 0.2
@@ -106,7 +106,7 @@ class DenseBlock(nn.Module):
 # - AvgPool layer: Halving length of the resolution dimensions
 # [B, C, H, W] -> [B, compression*C, H/2, W/2]
 
-class TransitionLayer(nn.Module):
+class _TransitionLayer(nn.Module):
     def __init__(
             self,
             in_channels : int,
@@ -163,19 +163,19 @@ class DenseNetTiny(nn.Module):
             nn.Conv2d(in_channels, base_channels, kernel_size=3, stride=1, padding=1),  # [B, 12, 28, 28]
 
             # Dense Block 1
-            DenseBlock(in_channels_d1, growth_rate, num_layers),  # [B, 12+12*3, 28, 28] = [B, 48, 28, 28]
+            _DenseBlock(in_channels_d1, growth_rate, num_layers),  # [B, 12+12*3, 28, 28] = [B, 48, 28, 28]
 
             # Transision Layer 1
-            TransitionLayer(in_channels_t1, compression),  # [B, 48/4, 28/2, 28/2] = [B, 12, 14, 14]
+            _TransitionLayer(in_channels_t1, compression),  # [B, 48/4, 28/2, 28/2] = [B, 12, 14, 14]
 
             # Dense Block 2
-            DenseBlock(in_channels_d2, growth_rate, num_layers),  # [B, 12+12*3, 14, 14] = [B, 48, 14, 14]
+            _DenseBlock(in_channels_d2, growth_rate, num_layers),  # [B, 12+12*3, 14, 14] = [B, 48, 14, 14]
 
             # Transition Layer 2
-            TransitionLayer(in_channels_t2, compression),  # [B, 48/4, 14/2, 14/2] = [B, 12, 7, 7]
+            _TransitionLayer(in_channels_t2, compression),  # [B, 48/4, 14/2, 14/2] = [B, 12, 7, 7]
             
             # Dense Block 3
-            DenseBlock(in_channels_d3, growth_rate, num_layers)  # [B, 12+12*3, 7, 7] = [B, 48, 7, 7]
+            _DenseBlock(in_channels_d3, growth_rate, num_layers)  # [B, 12+12*3, 7, 7] = [B, 48, 7, 7]
         )
 
         self.classifier = nn.Sequential(
