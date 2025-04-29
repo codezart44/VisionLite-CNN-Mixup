@@ -6,34 +6,9 @@ import gc
 import time
 from .globals import (
     EPOCHS,
-    LEARNING_RATE,
     PATIENCE,
-    BATCH_SIZE,
 )
-
-class EarlyStopper:
-    def __init__(self, patience: int = 5):
-        self.patience = patience
-        self.best_loss = float('inf')
-        self.counter = 0
-
-    def check_stop(self, test_loss: float) -> bool:
-        """..."""
-        if test_loss < self.best_loss:
-            self.best_loss = test_loss
-            self.counter = 0
-        else:
-            self.counter += 1
-        return self.counter >= self.patience
-    
-    def reset_stopper(self) -> None:
-        """..."""
-        self.best_loss = float('-inf')
-        self.counter = 0
-
-# Reusables
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-early_stopper = EarlyStopper(patience=PATIENCE)
+from .early_stopping import EarlyStopper
 
 def accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor) -> float:
     """ Compute accuracy score of predicted labels. """
@@ -112,6 +87,8 @@ def train_eval_report(
         test_dataloader : DataLoader,
         optimizer : torch.optim.Adam,
         loss_fn : Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+        early_stopper : EarlyStopper,
+        device,
     ) -> dict:
     """
     Training and inference loop to collect model metrics.
@@ -133,9 +110,8 @@ def train_eval_report(
     dict
         Report of train and test/inference: accuracy, loss and time
     """
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
-    loss_fn = nn.CrossEntropyLoss()
-    early_stopper = EarlyStopper(patience=PATIENCE)
+    early_stopper.reset_stopper()  # Reset inner count and best loss.
+    model = model.to(device)
 
     train_losses, train_accuracies = [], []
     test_losses, test_accuracies = [], []
@@ -154,7 +130,7 @@ def train_eval_report(
 
         # Eval one epoch
         start_infer = time.time()
-        test_loss, test_acc = evaluate(model, train_dataloader, loss_fn, device)
+        test_loss, test_acc = evaluate(model, test_dataloader, loss_fn, device)
         end_infer = time.time()
         # Test and inference metrics
         test_losses.append(test_loss)
