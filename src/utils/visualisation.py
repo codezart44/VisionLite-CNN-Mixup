@@ -20,3 +20,4 @@ def visualise_fashion_mnist(dataset: Dataset) -> None:
         ax.axis('off')
         
     plt.show()
+
