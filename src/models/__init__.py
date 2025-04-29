@@ -3,3 +3,4 @@ from .lenet5 import LeNet5
 from .resnet_mini import ResNetMini
 from .densenet_tiny import DenseNetTiny
 from .mobilenet_lite import MobileNetLite
+from .vit_tiny import ViTTiny
