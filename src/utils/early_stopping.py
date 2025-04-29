@@ -17,5 +17,5 @@ class EarlyStopper:
     
     def reset_stopper(self) -> None:
         """..."""
-        self.best_loss = float('-inf')
+        self.best_loss = float('inf')
         self.counter = 0
