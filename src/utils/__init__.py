@@ -6,6 +6,8 @@ from .training import (
 )
 from .visualisation import (
     visualise_fashion_mnist,
+    metric_ts,
+    metric_bar,
 )
 from .globals import (
     EPOCHS,

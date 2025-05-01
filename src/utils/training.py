@@ -148,12 +148,12 @@ def train_eval_report(
             break
     
     metrics_report = {
-        'train_losses': train_losses,
-        'train_accuracies': train_accuracies,
-        'train_times': train_times,
-        'test_losses': test_losses,
-        'test_accuracies': test_accuracies,
-        'inference_times': inference_times
+        'train_loss': train_losses,
+        'train_accuracy': train_accuracies,
+        'train_time': train_times,
+        'test_loss': test_losses,
+        'test_accuracy': test_accuracies,
+        'test_time': inference_times
     }
 
     return metrics_report
