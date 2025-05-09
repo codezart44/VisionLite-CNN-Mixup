@@ -3,6 +3,7 @@
 src/data/
 .DS_Store
 src/scrap.py
+test.ipynb
 
 
 # Byte-compiled / optimized / DLL files
