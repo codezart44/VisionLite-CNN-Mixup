@@ -1,3 +1,67 @@
+# Copmuter Vision - Image Classification
+Comparative study of lightweight versions of classic CNN architectures and a lightweight Vision Transformer on typical image classification datasets (MNIST and Cifar).
+
+## Project Outline
+The flow of this project will be as follows: (1) Implement model architectures listed down below. (2) Train models on one or more of the datasets listed below (original, agumented and MixUp versions) to assess architecture performance in different data preprocessing contexts. 
+
+## Model Architectures (Lite Versions)
+| MODEL      | PAPER                     | COMPANY   | IMPL |
+|------------|---------------------------|-----------|------|
+| LeNet      | LeCun et. al., 1998       | -         | Yes  |
+| ResNet     | He et. al., 2015          | Microsoft | Yes  |
+| DenseNet   | Huang et. al., 2018       | Facebook  | Yes  |
+| MobileNet  | Howard et. al., 2017      | Google    | Yes  |
+| ViT        | Dosovitskiy et. al., 2021 | Google    | Yes  |
+| GoogLeNet  | Szegedy et. al., 2014     | Google    | No   |
+| SqueezeNet | Iandola et. al., 2016     | -         | No   |
+
+## Datasets
+| DATASET      | SHAPE               | SIZE           | INFO 
+|--------------|---------------------|----------------|-----------------------------------
+| MNIST Digits | 1x28x28 (Grayscale) | 70K (60/10) | Handwritten digits 0-9, 10 classes
+| FashionMNIST | 1x28x28 (Grayscale) | 70K (60/10) | Zalando clothes, 10 classes
+| Cifar-10     | 3x32x32 (RGB)       | ...?           | Distinct image classes, 10 classes
+| Cifar-100    | 3x32x32 (RGB)       | ...?           | Distinct image classes, 100 classes
+| Other ? | ...? | ...? | ...?  
+
+## Training
+* Original | No data augmentation
+* Augmented:
+    - Flips
+    - Rotations
+    - Crops
+    - [Distortion] - omitted pixels
+    - [Glare] - areas of highlights and fasded contour
+    - [Scratches] - lines of removed pixels
+* MixUp | Overlapped images and one-hot labels
+    - E.g. $\lambda \times \text{Im}_1 + (1-\lambda) \times \text{Im}_2$, same for one-hot labels
+    - Idea : To make network generalise better
+
+## Evaluation
+* Loss
+<!-- * Error rate -->
+* Accuracy
+* Class Precision, Recall & F1-Score
+* Training Time / Epoch
+* Inference Time / Epoch
+* Parameter Count
+* FLOPs
+* Training Time / Parameter
+* Training Time / FLOP
+
+
+
+
+
+
+## E. Clothing Classification
+### 3. Comparing the performance of different network architectures
+
+Fashion-MNIST is a dataset of Zalando's article images-consisting of a training set of 60,000 examples and a test set of 10,000 examples. Each example is a 28x28 grayscale image, associated with a label from 10 classes. One can design a convolutional neural network or Transformer to address the classification problem.
+
+
+
+
 # SC4001 CE: Neural Networks and Deep Learning
 
 ## Project Requirements
@@ -10,8 +74,3 @@ introduction to the project idea, a review of existing techniques, a description
 
 The assessment is based on the project execution (30%), experiments and results (30%), report
 presentation (15%), and novelty (15%), and peer review (10%. Conducted via Eureka). We apply the same late submission penalty as in Assignment 1, i.e., 5% for each day up to three days.
-
-## E. Clothing Classification
-### 3. Comparing the performance of different network architectures
-
-Fashion-MNIST is a dataset of Zalando's article images-consisting of a training set of 60,000 examples and a test set of 10,000 examples. Each example is a 28x28 grayscale image, associated with a label from 10 classes. One can design a convolutional neural network or Transformer to address the classification problem.
