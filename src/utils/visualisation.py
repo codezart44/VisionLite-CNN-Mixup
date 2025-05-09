@@ -18,7 +18,7 @@ def visualise_fashion_mnist(dataset: Dataset) -> None:
         ax: plt.Axes
         image, label = samples[i]
         ax.imshow(np.squeeze(image), cmap='binary_r')
-        ax.set_title(f'{dataset.classes[label]}') 
+        ax.set_title(f'{dataset.classes[label]} ({label})') 
         ax.axis('off')
         
     plt.show()
