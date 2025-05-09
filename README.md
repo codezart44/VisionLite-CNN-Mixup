@@ -1,4 +1,4 @@
-# CNN Image Classification
+# Copmuter Vision - Image Classification
 Comparative study of lightweight versions of classic CNN architectures and a lightweight Vision Transformer on typical image classification datasets (MNIST and Cifar).
 
 ## Project Outline
@@ -18,8 +18,8 @@ The flow of this project will be as follows: (1) Implement model architectures l
 ## Datasets
 | DATASET      | SHAPE               | SIZE           | INFO 
 |--------------|---------------------|----------------|-----------------------------------
-| MNIST Digits | 1x28x28 (Grayscale) | 70K (50/10/10) | Handwritten digits 0-9, 10 classes
-| FashionMNIST | 1x28x28 (Grayscale) | 70K (50/10/10) | Zalando clothes, 10 classes
+| MNIST Digits | 1x28x28 (Grayscale) | 70K (60/10) | Handwritten digits 0-9, 10 classes
+| FashionMNIST | 1x28x28 (Grayscale) | 70K (60/10) | Zalando clothes, 10 classes
 | Cifar-10     | 3x32x32 (RGB)       | ...?           | Distinct image classes, 10 classes
 | Cifar-100    | 3x32x32 (RGB)       | ...?           | Distinct image classes, 100 classes
 | Other ? | ...? | ...? | ...?  
