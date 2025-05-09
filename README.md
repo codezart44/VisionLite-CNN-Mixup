@@ -5,15 +5,15 @@ Comparative study of lightweight versions of classic CNN architectures and a lig
 The flow of this project will be as follows: (1) Implement model architectures listed down below. (2) Train models on one or more of the datasets listed below (original, agumented and MixUp versions) to assess architecture performance in different data preprocessing contexts. 
 
 ## Model Architectures (Lite Versions)
-| MODEL      | PAPER                     | COMPANY   | IMPL |
-|------------|---------------------------|-----------|------|
-| LeNet      | LeCun et. al., 1998       | -         | Yes  |
-| ResNet     | He et. al., 2015          | Microsoft | Yes  |
-| DenseNet   | Huang et. al., 2018       | Facebook  | Yes  |
-| MobileNet  | Howard et. al., 2017      | Google    | Yes  |
-| ViT        | Dosovitskiy et. al., 2021 | Google    | Yes  |
-| GoogLeNet  | Szegedy et. al., 2014     | Google    | No   |
-| SqueezeNet | Iandola et. al., 2016     | -         | No   |
+| MODEL      | PAPER                    | COMPANY   | IMPL         |
+|------------|--------------------------|-----------|--------------|
+| LeNet      | LeCun et al., 1998       | -         | $\checkmark$ |
+| ResNet     | He et al., 2015          | Microsoft | $\checkmark$ |
+| DenseNet   | Huang et al., 2018       | Facebook  | $\checkmark$ |
+| MobileNet  | Howard et al., 2017      | Google    | $\checkmark$ |
+| ViT        | Dosovitskiy et al., 2021 | Google    | $\checkmark$ |
+| GoogLeNet  | Szegedy et al., 2014     | Google    | -            |
+| SqueezeNet | Iandola et al., 2016     | -         | -            |
 
 ## Datasets
 | DATASET      | SHAPE               | SIZE           | INFO 
