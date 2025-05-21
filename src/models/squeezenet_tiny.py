@@ -36,7 +36,7 @@ class SqueezeLayer(nn.Module):
     def __init__(
             self,
             in_channels : int,
-            base_channels : int = 16,
+            base_channels : int,
             ) -> None:
         super().__init__()
 
@@ -53,7 +53,7 @@ class SqueezeLayer(nn.Module):
 class ExpandLayer(nn.Module):
     def __init__(
             self,
-            base_channels : int = 16,
+            base_channels : int,
             kernel_size : Literal[1, 3] = 1,
             downsample : bool = False,
             ) -> None:
@@ -93,8 +93,8 @@ class FireModule(nn.Module):
 class SqueezeNetTiny(nn.Module):
     def __init__(
             self,
-            in_channels : int,
-            base_channels : int,
+            in_channels : int = 1,  # Gray Scale
+            base_channels : int = 16,
             num_classes : int = 10,  # FashionMNIST
             dropout : float = 0.2,
             ) -> None:
@@ -109,23 +109,30 @@ class SqueezeNetTiny(nn.Module):
             FireModule(base_channels*2, base_channels*2),   # [B, 64, 28, 28]
             nn.MaxPool2d(kernel_size=2, stride=2),          # [B, 64, 14, 14]
             FireModule(base_channels*4, base_channels*4),   # [B, 128, 14, 14]
-            nn.MaxPool2d(kernel_size=2, stride=2),          # [B, 128, 7, 7]
-            FireModule(base_channels*8, base_channels*8),   # [B, 256, 7, 7]
+            # nn.MaxPool2d(kernel_size=2, stride=2),          # [B, 128, 7, 7]
+            # FireModule(base_channels*8, base_channels*8),   # [B, 256, 7, 7]
         )
 
         self.classifier = nn.Sequential(
-            nn.AdaptiveMaxPool2d(output_size=1),  # [B, 256, 1, 1]
-            nn.Flatten(),  # [B, 256, 1, 1] -> [B, 256]
+            nn.AdaptiveMaxPool2d(output_size=1),  # [B, 128, 1, 1]
+            nn.Flatten(),  # [B, 128, 1, 1] -> [B, 128]
             nn.Dropout(p=dropout),
-            nn.Linear(in_features=256, out_features=num_classes),  # [B, 10]
+            nn.Linear(in_features=base_channels*8, out_features=num_classes),  # [B, 10]
         )
+
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+        return self.conv_stack(x)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.forward_features(x)
+        return self.classifier(x)
 
 
 def main():
     t = torch.rand((1, 1, 28, 28))
-    fm = FireModule(1, 16)
-    t = fm(t)
-    print(t.shape) # Output [1, 32, 28, 28]
+    sqzn = SqueezeNetTiny(base_channels=8)
+    t = sqzn(t)
+    print(t.shape) # Output [1, 10]
 
 if __name__=='__main__':
     main()
