@@ -16,9 +16,17 @@ from typing import Literal
 
 # General Architecute
 #--------------------
+# > FireModule - Microarchitecture
+# - Squeeze Layer : 1x1 filters, BatchNorm, ReLU
+# - Expand Layer : 1x1 & 3x3 filters, BatchNorm, ReLU
+# Low Parameters count module
 
-
-
+# > SqueezeNet - MacroArchitecture
+# - Initial conv layer
+# - Fire Modules
+# - Late Pooling layers
+# - Global max pooling
+# - Flattening and linear layer
 
 
 # Feature map shapes [B,C,H,W], where Dout is num filters, Din is num channels

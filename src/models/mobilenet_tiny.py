@@ -52,7 +52,7 @@ class DWConvBlock(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.dwsep_stack(x)
     
-class MobileNetLite(nn.Module):
+class MobileNetTiny(nn.Module):
     def __init__(
             self,
             in_channels : int = 1,  # Gray Scale

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-# Paper: Densely Connected Convolutional Networks (Huang et. al., 2018)
+# Paper: Densely Connected Convolutional Networks (Huang et al., 2018)
 
 # DenseNet is short for Densely Connected Convolutional Network
 # Unlike ResNet which adds the residual to the input, DenseNet instead

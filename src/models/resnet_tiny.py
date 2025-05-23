@@ -73,7 +73,7 @@ class _ResidualBlock(nn.Module):
 # - Flattening layer. [B, 64, 1, 1] -> [B, 64*1*1] = [B, 64]
 # - Fully connected layer. [B, 64] -> [B, 10], since there are 10 FashionMNIST classes. 
 
-class ResNetMini(nn.Module):
+class ResNetTiny(nn.Module):
     def __init__(
             self,
             in_channels : int = 1,  # Gray Scale

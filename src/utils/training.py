@@ -21,9 +21,9 @@ def accuracy_score(y_true: torch.Tensor, y_pred: torch.Tensor) -> float:
 
 def confusion_metrics(y_true: torch.Tensor, y_pred: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     """ Compute weighted confusion metrics recall and precision per class. """
-    y_pred = torch.argmax(y_pred, dim=1)
+    y_pred = torch.argmax(y_pred, dim=1)  
     
-    recall = torch.zeros((NUM_CLASSES, 2))
+    recall = torch.zeros((NUM_CLASSES, 2))      # Cols: score, arg count
     precision = torch.zeros((NUM_CLASSES, 2))
 
     for cls in range(NUM_CLASSES):
@@ -36,7 +36,7 @@ def confusion_metrics(y_true: torch.Tensor, y_pred: torch.Tensor) -> tuple[torch
         else:
             cls_pred = y_pred[cls_arg]
             cls_true = y_true[cls_arg]
-            recall_score = torch.sum(cls_pred == cls_true) / cls_true.shape[0]
+            recall_score = torch.sum(cls_pred == cls_true) / cls_true.shape[0]  # TP / (TP + FN)
         recall[cls, :] = torch.tensor([recall_score*arg_count, arg_count])
         
         # Precision
@@ -47,10 +47,10 @@ def confusion_metrics(y_true: torch.Tensor, y_pred: torch.Tensor) -> tuple[torch
         else:
             cls_pred = y_pred[cls_arg]
             cls_true = y_true[cls_arg]
-            precision_score = torch.sum(cls_true == cls_pred) / cls_pred.shape[0]
+            precision_score = torch.sum(cls_true == cls_pred) / cls_pred.shape[0]  # TP / (TP + FP)
         precision[cls, :] = torch.tensor([precision_score*arg_count, arg_count])
 
-    return recall, precision
+    return recall, precision  # (num_classes, 2) shaped tensors
 
 
 def train_one_epoch(
@@ -59,7 +59,7 @@ def train_one_epoch(
         optimizer: torch.optim.Adam, 
         loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], 
         device
-    ) -> tuple[float, float]:
+    ) -> tuple[float, float, torch.Tensor, torch.Tensor]:
     """ """
     model.train()
     total_loss = 0
@@ -74,8 +74,20 @@ def train_one_epoch(
         x, y = x.to(device), y.to(device)
 
         optimizer.zero_grad()
-        y_pred: torch.Tensor = model(x)
-        loss = loss_fn(y_pred, y)
+        out = model(x)
+
+        if isinstance(out, tuple):  # E.g. for GoogLeNet (uses auxiliary clf)
+            y_pred, aux_pred = out  # Destruct
+            y_pred: torch.Tensor
+            aux_pred: torch.Tensor
+
+            loss_main = loss_fn(y_pred, y)
+            loss_aux = loss_fn(aux_pred, y)
+            loss = loss_main + 0.3 * loss_aux
+        else:  # Normal case (no auxiliary predictions)
+            y_pred: torch.Tensor = out
+            loss = loss_fn(y_pred, y)
+        
         loss.backward()
         accuracy = accuracy_score(y, y_pred)
         recall, precision = confusion_metrics(y, y_pred)
@@ -100,7 +112,7 @@ def evaluate(
         dataloader: DataLoader,
         loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
         device
-    ) -> tuple[float, float]:
+    ) -> tuple[float, float, torch.Tensor, torch.Tensor]:
     """ """
     model.eval()
     total_loss = 0
@@ -184,31 +196,31 @@ def train_eval_report(
         # Train one epoch
         start_train = time.time()
         # NOTE SANITY CHECK - Is mean train recall over classes about same as accuracy? 
-        train_loss, train_acc, train_rcll, train_pres = train_one_epoch(model, train_dataloader, optimizer, loss_fn, device)
+        train_loss, train_acc, train_reca, train_pres = train_one_epoch(model, train_dataloader, optimizer, loss_fn, device)
         end_train = time.time()
         # Train metrics
         train_losses[epoch] = train_loss
         train_accuracies[epoch] = train_acc
         train_times[epoch] = end_train - start_train
-        train_recalls[epoch, :] = train_rcll
+        train_recalls[epoch, :] = train_reca
         train_precisions[epoch, :] = train_pres
 
         # Eval one epoch
         start_test = time.time()
-        test_loss, test_acc, test_rcll, test_pres = evaluate(model, test_dataloader, loss_fn, device)
+        test_loss, test_acc, test_recatrain_reca, test_pres = evaluate(model, test_dataloader, loss_fn, device)
         end_test = time.time()
         # Test (inference) metrics
         test_losses[epoch] = test_loss
         test_accuracies[epoch] = test_acc
         test_times[epoch] = end_test - start_test
-        test_recalls[epoch, :] = test_rcll
+        test_recalls[epoch, :] = test_recatrain_reca
         test_precisions[epoch, :] = test_pres
 
         print(
             f"Epoch {epoch+1:3d} (Train/Test) " +\
             f"Loss: {train_loss:.6f}/{test_loss:.6f}. " +\
             f"Acc: {train_acc:.4f}/{test_acc:.4f}. " +\
-            f"Rcll: {test_rcll}"
+            f"Reca: {test_recatrain_reca}"
         )
 
         # print(
